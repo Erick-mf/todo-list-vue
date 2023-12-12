@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <title>Todo List</title>
+    </head>
+
+    <body class="flex justify-center items-center h-screen bg-[#f3f3f3]">
+        <div
+            id="app"
+            class="flex items-start min-h-[40%] max-h-[90%] w-[36rem] bg-gray-700 flex-col p-2"
+        >
+            <div class="w-full">
+                <form @submit="addTodo">
+                    <input
+                        v-model="newTodoText"
+                        placeholder="Nueva tarea"
+                        class="border border-gray-300 rounded p-2 w-[65%]"
+                    />
+                    <select
+                        v-model="newTodoPriority"
+                        class="border border-gray-300 rounded p-2 m-4"
+                    >
+                        <option>Alta</option>
+                        <option>Normal</option>
+                        <option>Baja</option>
+                    </select>
+                    <button type="submit" class="bg-blue-500 text-white rounded p-2">Añadir</button>
+                </form>
+            </div>
+            <div class="text-white w-full overflow-y-auto">
+                <div
+                    v-for="(todo, index) in todos"
+                    class="border-b-2 border-solid hover:bg-gray-600 hover:border-sky-300"
+                >
+                    <p>{{ todo.text }}</p>
+                    <div class="flex justify-between items-center">
+                        <p>Creación: {{ todo.date}} - Prioridad: {{ todo.priority }}</p>
+                        <div>
+                            <button
+                                @click="toggleDone(index)"
+                                class="bg-green-500 text-white text-sm rounded p-2"
+                            >
+                                {{ todo.done ? 'Completada' : 'No completada' }}
+                            </button>
+                            <button
+                                @click="deleteTodo(index)"
+                                class="bg-red-500 text-white text-sm rounded p-2 m-2"
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const { createApp } = Vue
+            createApp({
+                data() {
+                    return {
+                        newTodoText: '',
+                        newTodoPriority: 'Normal',
+                        newTodoDate: new Date().toLocaleDateString('es-ES'),
+                        todos: JSON.parse(localStorage.getItem('todos')) || []
+                    }
+                },
+                methods: {
+                    addTodo(event) {
+                        event.preventDefault()
+                        this.todos.push({
+                            text: this.newTodoText,
+                            priority: this.newTodoPriority,
+                            date: this.newTodoDate,
+                            done: false
+                        })
+                        this.newTodoText = ''
+                        this.updateLocalStorage()
+                    },
+                    deleteTodo(index) {
+                        this.todos.splice(index, 1)
+                        this.updateLocalStorage()
+                    },
+                    toggleDone(index) {
+                        this.todos[index].done = !this.todos[index].done
+                        this.updateLocalStorage()
+                    },
+                    updateLocalStorage() {
+                        localStorage.setItem('todos', JSON.stringify(this.todos))
+                    }
+                }
+            }).mount('#app')
+        </script>
+    </body>
+</html>
